@@ -1,0 +1,46 @@
+# --- Secrets (never commit these) ---
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+
+# --- Python ---
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+*.egg-info/
+.ipynb_checkpoints/
+
+# --- Data & local storage (keep the repo light) ---
+data/
+*.parquet
+*.csv
+*.log
+mongo-data/
+mysql-data/
+
+# --- Spark ---
+spark-warehouse/
+metastore_db/
+derby.log
+
+# --- Node / dashboard (if you use React) ---
+node_modules/
+dist/
+build/
+
+# --- Terraform (stretch goal) ---
+.terraform/
+*.tfstate
+*.tfstate.*
+
+# --- IDE / OS ---
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db

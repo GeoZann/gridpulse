@@ -1,0 +1,3 @@
+requests>=2.31
+tzdata
+python-dotenv>=1.0
