@@ -4,7 +4,7 @@
 
 GridPulse ingests day-ahead electricity prices (and, later, load and generation mix) for Greece and other European bidding zones from the [ENTSO-E Transparency Platform](https://transparency.entsoe.eu), processes them through a Bronze/Silver/Gold data pipeline, and serves them through a REST API and a dashboard. The whole system is containerized and designed for deployment on AWS.
 
-> **Status:** early development. The ENTSO-E ingestion prototype works; the rest of the pipeline is in progress. See the [roadmap](#roadmap).
+> **Status:** early development. The ENTSO-E prototype and MongoDB Bronze ingestion are implemented. Unit tests pass; running the local MongoDB flow requires Docker. See the [roadmap](#roadmap).
 
 ## Why this project
 
@@ -58,11 +58,31 @@ python entsoe_hello_world.py
 
 The script prints Greek day-ahead prices for the previous day, as hourly averages of the 15-minute market intervals.
 
+## Bronze ingestion (MongoDB)
+
+The ingestion job stores the original ENTSO-E XML response and request metadata in MongoDB. Re-running the same zone, document type, and date replaces that day's record instead of creating a duplicate.
+
+```powershell
+docker compose -f infra/docker-compose.yml up -d
+python -m ingestion.ingest
+# Or choose a Greek local calendar date:
+python -m ingestion.ingest --date 2026-09-27
+docker compose -f infra/docker-compose.yml down
+```
+
+Set `ENTSOE_API_TOKEN` in `.env` before running the job, and set `MONGO_URI=mongodb://localhost:27017` for a locally running Python process. MongoDB is available on `localhost:27017`; the database defaults to `gridpulse`. The MongoDB service uses a named Docker volume, so `down` preserves its data. Use `docker compose -f infra/docker-compose.yml down -v` only when you intend to delete that local data.
+
+The storage and request behavior is covered by unit tests that do not require Docker or a live ENTSO-E token:
+
+```powershell
+python -m unittest discover -s tests -v
+```
+
 ## Roadmap
 
 - [x] ENTSO-E API access and first ingestion prototype
-- [ ] Repository structure and Docker Compose skeleton
-- [ ] Ingestion service storing raw data in MongoDB (Bronze)
+- [x] Repository structure and Docker Compose skeleton
+- [x] Ingestion service storing raw data in MongoDB (Bronze; unit-tested, local Docker run pending)
 - [ ] Spark ETL into MySQL (Gold)
 - [ ] REST API (FastAPI)
 - [ ] Dashboard

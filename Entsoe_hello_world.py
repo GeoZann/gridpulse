@@ -24,9 +24,8 @@ from zoneinfo import ZoneInfo
 from dotenv import load_dotenv
 load_dotenv()
 
-import requests
+from ingestion.entsoe_client import fetch_day_ahead_prices
 
-API_URL = "https://web-api.tp.entsoe.eu/api"
 GREECE_DOMAIN = os.environ.get("ENTSOE_DOMAIN", "10YGR-HTSO-----Y")
 LOCAL_TZ = ZoneInfo("Europe/Athens")
 NAMESPACES = {"ns": "urn:iec62325.351:tc57wg16:451-3:publicationdocument:7:3"}
@@ -37,31 +36,6 @@ def get_api_token() -> str:
     if not token:
         sys.exit("ERROR: Set the ENTSOE_API_TOKEN environment variable first.")
     return token
-
-
-def to_api_time(dt: datetime) -> str:
-    """ENTSO-E wants UTC, formatted as YYYYMMDDHHmm."""
-    return dt.astimezone(timezone.utc).strftime("%Y%m%d%H%M")
-
-
-def fetch_day_ahead_prices(token: str, target_day: date) -> str:
-    """Request exactly the local (Athens) day: local midnight -> next local midnight."""
-    local_start = datetime(target_day.year, target_day.month, target_day.day, tzinfo=LOCAL_TZ)
-    local_end = local_start + timedelta(days=1)  # calendar-day step; DST handled by zoneinfo below
-    local_end = datetime(local_end.year, local_end.month, local_end.day, tzinfo=LOCAL_TZ)
-
-    params = {
-        "securityToken": token,
-        "documentType": "A44",  # day-ahead prices
-        "in_Domain": GREECE_DOMAIN,
-        "out_Domain": GREECE_DOMAIN,
-        "periodStart": to_api_time(local_start),
-        "periodEnd": to_api_time(local_end),
-    }
-    response = requests.get(API_URL, params=params, timeout=30)
-    if response.status_code != 200:
-        sys.exit(f"ERROR: API returned {response.status_code}\n{response.text[:1000]}")
-    return response.text
 
 
 def parse_resolution(text: str) -> timedelta:
