@@ -8,8 +8,8 @@ Just prove the API connection works end to end.
 Setup:
 1. pip install requests
 2. Set your ENTSO-E security token as an environment variable:
-     export ENTSOE_API_TOKEN="your-token-here"      (Linux/Mac)
-     setx ENTSOE_API_TOKEN "your-token-here"          (Windows)
+     export ENTSOE_API_TOKEN="e5bc8125-dbf2-4359-bb0f-db41e2754030"      (Linux/Mac)
+     setx ENTSOE_API_TOKEN "e5bc8125-dbf2-4359-bb0f-db41e2754030"          (Windows)
    (Get the token from your account settings at transparency.entsoe.eu,
    after your "Restful API access" request has been approved.)
 3. Run: python entsoe_hello_world.py
